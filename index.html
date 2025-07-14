@@ -1,115 +1,117 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TikTok Profile Inspector</title>
   <style>
     body {
-      background-color: #0d0d0d;
-      font-family: 'Segoe UI', sans-serif;
+      background: #0d0d0d;
       color: #fff;
-      text-align: center;
-      padding: 30px;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
-
     h1 {
       font-size: 2em;
-      margin-bottom: 10px;
-      color: cyan;
-      text-shadow: 0 0 15px cyan;
+      text-align: center;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+      margin-bottom: 30px;
     }
-
     input {
       padding: 12px;
-      width: 80%;
-      max-width: 300px;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-bottom: 15px;
-      text-align: center;
-      background: #121212;
-      color: #00ffff;
       outline: none;
-      box-shadow: 0 0 10px #00ffff50;
-    }
-
-    button {
-      padding: 12px 20px;
+      width: 250px;
       font-size: 16px;
-      background: linear-gradient(to right, #00faff, #00ff95);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background-color: #222;
+      color: #0ff;
+      box-shadow: 0 0 10px #0ff;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #00e5ff;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 10px;
       color: #000;
       font-weight: bold;
-      box-shadow: 0 0 10px #00fff270;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0ff;
+      transition: 0.3s;
     }
-
-    #result {
-      margin-top: 30px;
+    button:hover {
+      background-color: #00bcd4;
+    }
+    .result {
+      margin-top: 20px;
       padding: 20px;
-      background: #1a1a1a;
-      border-radius: 12px;
-      box-shadow: 0 0 15px #00ffbb60;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
+      background: #111;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.5);
+      max-width: 300px;
+      text-align: left;
     }
-
+    .error {
+      color: #ff4444;
+    }
+    .success {
+      color: #00ff90;
+    }
     a {
-      color: #00eaff;
+      color: #00b0ff;
       text-decoration: none;
       font-weight: bold;
-    }
-
-    .success {
-      color: #00ff8c;
-    }
-
-    .error {
-      color: #ff5252;
     }
   </style>
 </head>
 <body>
+
   <h1>🔍 TikTok Profile Inspector</h1>
-  <p>Masukkan username TikTok tanpa tanda <b>@</b></p>
-  <input type="text" id="username" placeholder="misal: psphanggita" />
-  <br>
+  <input type="text" id="username" placeholder="Masukkan username TikTok tanpa @" />
   <button onclick="cekProfil()">Cek Profil</button>
 
-  <div id="result"></div>
+  <div class="result" id="result"></div>
 
   <script>
     async function cekProfil() {
-      const username = document.getElementById('username').value.trim();
-      const resultBox = document.getElementById('result');
-      resultBox.innerHTML = "⏳ Memuat data...";
+      const username = document.getElementById("username").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "⏳ Memuat data...";
+      
+      if (!username) {
+        resultDiv.innerHTML = "<span class='error'>❌ Username tidak boleh kosong.</span>";
+        return;
+      }
 
       try {
-        const res = await fetch(`https://tiktok.fullstack.edu.vn/api/users/@${username}`);
-        const data = await res.json();
+        const token = "5u8xwmqi4to6lhI9";
+        const response = await fetch(`https://ensembledata.com/apis/tt/user/info?username=${username}&token=${token}`);
+        const data = await response.json();
 
-        if (data && data.user) {
-          const u = data.user;
-          resultBox.innerHTML = `
-            <p class="success">✅ Akun ditemukan!</p>
-            <p>👤 <b>Nama:</b> ${u.nickname || 'Tidak terdeteksi'}</p>
-            <p>📖 <b>Bio:</b> ${u.signature || 'Tidak ada'}</p>
-            <p>🌍 <b>Region:</b> ${u.region || 'Tidak diketahui'}</p>
-            <p>📊 <b>Followers:</b> ${u.stats.followerCount}</p>
-            <p>🎥 <b>Video:</b> ${u.stats.videoCount}</p>
-            <a href="https://tiktok.com/@${username}" target="_blank">🔗 Kunjungi Akun TikTok</a>
+        if (data?.data?.username) {
+          const user = data.data;
+          resultDiv.innerHTML = `
+            <div class='success'>✅ Akun ditemukan!</div><br>
+            👤 <b>Nama:</b> ${user.nickname || "Tidak tersedia"}<br>
+            📘 <b>Bio:</b> ${user.signature || "Tidak tersedia"}<br>
+            🌍 <b>Region:</b> ${user.region || "Tidak diketahui"}<br>
+            <br>
+            🔗 <a href="https://tiktok.com/@${user.username}" target="_blank">Kunjungi Akun TikTok</a>
           `;
         } else {
-          resultBox.innerHTML = `<p class="error">❌ Akun tidak ditemukan.</p>`;
+          resultDiv.innerHTML = "<span class='error'>❌ Akun tidak ditemukan.</span>";
         }
-      } catch (e) {
-        resultBox.innerHTML = `<p class="error">❌ Gagal mengambil data.<br><small>${e.message}</small></p>`;
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = `<span class='error'>❌ Gagal mengambil data.<br>${error.message}</span>`;
       }
     }
   </script>
+
 </body>
 </html>
