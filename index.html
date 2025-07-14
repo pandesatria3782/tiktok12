@@ -3,79 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TikTok Profile Inspector</title>
+  <title>TikTok Inspector RGB</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      background-color: #0e0e0e;
+      background: linear-gradient(135deg, #0f0f0f, #000000);
+      color: #00ffcc;
       font-family: 'Segoe UI', sans-serif;
-      color: #00ff88;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      margin: 0;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 10px;
-      color: #00ffcc;
+      color: #fff;
+      text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ccff;
     }
 
     p {
       color: #ccc;
-      margin-top: -10px;
       font-size: 0.9rem;
+      margin-bottom: 20px;
     }
 
     input {
-      padding: 10px;
-      width: 280px;
+      padding: 12px;
+      width: 90%;
+      max-width: 300px;
       border: none;
       border-radius: 8px;
       outline: none;
-      margin-top: 20px;
       font-size: 1rem;
-      background-color: #1e1e1e;
-      color: #00ff88;
+      background: #1a1a1a;
+      color: #00ffcc;
+      box-shadow: 0 0 5px #00ffcc66;
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px #00ffccaa;
     }
 
     button {
-      padding: 10px 20px;
-      margin-top: 10px;
+      padding: 10px 25px;
+      margin-top: 12px;
       border: none;
       border-radius: 8px;
-      background: #00ff88;
+      background: linear-gradient(90deg, #00ffcc, #00ccff, #cc00ff);
+      background-size: 300% 100%;
       color: #000;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.2s;
+      font-size: 1rem;
+      animation: glow 5s linear infinite;
     }
 
-    button:hover {
-      background: #00cc66;
+    @keyframes glow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .result {
       margin-top: 30px;
       padding: 20px;
-      background-color: #1a1a1a;
+      background: #141414;
+      border-left: 5px solid #00ffcc;
       border-radius: 10px;
-      width: 300px;
+      width: 90%;
+      max-width: 350px;
       color: #fff;
+      box-shadow: 0 0 10px #00ffcc55;
       word-wrap: break-word;
     }
 
     .error {
       margin-top: 20px;
       color: #ff5555;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    a {
+      color: #00ccff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <h1>🔍 TikTok Profile Inspector</h1>
-  <p>Masukkan username TikTok tanpa @</p>
+  <p>Masukkan username TikTok tanpa tanda @</p>
+
   <input id="username" type="text" placeholder="contoh: psonamalaya" />
   <button onclick="cekProfil()">Cek Profil</button>
 
@@ -104,28 +135,27 @@
 
       try {
         const res = await fetch(proxy + encodeURIComponent(tiktokURL));
-        const data = await res.json();
-        const html = data.contents;
+        const html = await res.text(); // ✅ pakai text() bukan json()
 
         if (!html.includes('<title>')) {
-          throw new Error("Akun tidak ditemukan");
+          throw new Error("Akun tidak ditemukan.");
         }
 
         const matchName = html.match(/<title>(.*?)<\/title>/);
         const name = matchName ? matchName[1] : "Tidak ditemukan";
 
-        const bioMatch = html.match(/<h2 class="share-desc".*?>(.*?)<\/h2>/);
-        const bio = bioMatch ? bioMatch[1] : "Bio tidak terdeteksi";
+        const bioMatch = html.match(/<h2 class="share-desc.*?>(.*?)<\/h2>/);
+        const bio = bioMatch ? bioMatch[1] : "Tidak terdeteksi";
 
         const regionMatch = html.match(/"region":"(.*?)"/);
         const region = regionMatch ? regionMatch[1] : "Tidak diketahui";
 
         hasil.innerHTML = `
-          <b>✅ Ditemukan!</b><br><br>
-          <b>Nama Profil:</b><br>${name}<br><br>
-          <b>Bio:</b><br>${bio}<br><br>
-          <b>Negara / Region:</b><br>${region}<br><br>
-          <a href="https://www.tiktok.com/@${user}" target="_blank" style="color:#00ffcc;">🔗 Lihat Profil</a>
+          <b>✅ Akun ditemukan!</b><br><br>
+          <b>👤 Nama:</b><br>${name}<br><br>
+          <b>📖 Bio:</b><br>${bio}<br><br>
+          <b>🌍 Region:</b><br>${region}<br><br>
+          <a href="https://www.tiktok.com/@${user}" target="_blank">🔗 Kunjungi Akun TikTok</a>
         `;
         hasil.style.display = "block";
       } catch (err) {
